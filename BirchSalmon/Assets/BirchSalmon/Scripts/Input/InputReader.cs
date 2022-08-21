@@ -5,9 +5,10 @@ using UnityEngine.Events;
 namespace BirchSalmon
 {
     [CreateAssetMenu(fileName = "InputReader", menuName = "Game/Input Reader")]
-    public class InputReader : ScriptableObject, GameInput.IGameplayActions
+    public class InputReader : ScriptableObject, GameInput.IGameplayActions, GameInput.IMenuActions
     {
         public event UnityAction<Vector2> MoveEvent = delegate { };
+        public event UnityAction JumpEvent = delegate { };
 
         private GameInput _gameInput;
 
@@ -18,6 +19,7 @@ namespace BirchSalmon
                 _gameInput = new GameInput();
 
                 _gameInput.Gameplay.SetCallbacks(this);
+                _gameInput.Menu.SetCallbacks(this);
 
                 EnableGameplayInput();
             }
@@ -33,14 +35,23 @@ namespace BirchSalmon
             MoveEvent.Invoke(context.ReadValue<Vector2>());
         }
 
+        public void OnJump(InputAction.CallbackContext context)
+        {
+            if (context.performed)
+                JumpEvent.Invoke();
+        }
+
         public void EnableGameplayInput()
         {
             _gameInput.Gameplay.Enable();
+            _gameInput.Menu.Disable();
         }
 
         public void DisableAllInput()
         {
             _gameInput.Gameplay.Disable();
+            _gameInput.Menu.Disable();
         }
+
     }
 }

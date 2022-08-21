@@ -37,6 +37,15 @@ namespace BirchSalmon
                     ""processors"": ""NormalizeVector2"",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Jump"",
+                    ""type"": ""Button"",
+                    ""id"": ""e852b91c-53f4-44ba-8240-6ac5850d8c11"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -105,36 +114,36 @@ namespace BirchSalmon
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""345fb6da-d581-4479-b63a-0fcb57f1c488"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1c713ad2-c9f1-4d18-aa9f-bd403f58f987"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
         {
             ""name"": ""Menu"",
             ""id"": ""96f346a3-3efb-446e-a9bb-f25299449fdd"",
-            ""actions"": [
-                {
-                    ""name"": ""New action"",
-                    ""type"": ""Button"",
-                    ""id"": ""c0ecc80e-b234-4eb9-9dbe-c5a556bed062"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                }
-            ],
-            ""bindings"": [
-                {
-                    ""name"": """",
-                    ""id"": ""a3def1eb-77b4-4361-9b24-2ed84b3b1cb0"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Game"",
-                    ""action"": ""New action"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                }
-            ]
+            ""actions"": [],
+            ""bindings"": []
         }
     ],
     ""controlSchemes"": [
@@ -148,9 +157,9 @@ namespace BirchSalmon
             // Gameplay
             m_Gameplay = asset.FindActionMap("Gameplay", throwIfNotFound: true);
             m_Gameplay_Move = m_Gameplay.FindAction("Move", throwIfNotFound: true);
+            m_Gameplay_Jump = m_Gameplay.FindAction("Jump", throwIfNotFound: true);
             // Menu
             m_Menu = asset.FindActionMap("Menu", throwIfNotFound: true);
-            m_Menu_Newaction = m_Menu.FindAction("New action", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -211,11 +220,13 @@ namespace BirchSalmon
         private readonly InputActionMap m_Gameplay;
         private IGameplayActions m_GameplayActionsCallbackInterface;
         private readonly InputAction m_Gameplay_Move;
+        private readonly InputAction m_Gameplay_Jump;
         public struct GameplayActions
         {
             private @GameInput m_Wrapper;
             public GameplayActions(@GameInput wrapper) { m_Wrapper = wrapper; }
             public InputAction @Move => m_Wrapper.m_Gameplay_Move;
+            public InputAction @Jump => m_Wrapper.m_Gameplay_Jump;
             public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -228,6 +239,9 @@ namespace BirchSalmon
                     @Move.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMove;
                     @Move.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMove;
                     @Move.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnMove;
+                    @Jump.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnJump;
+                    @Jump.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnJump;
+                    @Jump.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnJump;
                 }
                 m_Wrapper.m_GameplayActionsCallbackInterface = instance;
                 if (instance != null)
@@ -235,6 +249,9 @@ namespace BirchSalmon
                     @Move.started += instance.OnMove;
                     @Move.performed += instance.OnMove;
                     @Move.canceled += instance.OnMove;
+                    @Jump.started += instance.OnJump;
+                    @Jump.performed += instance.OnJump;
+                    @Jump.canceled += instance.OnJump;
                 }
             }
         }
@@ -243,12 +260,10 @@ namespace BirchSalmon
         // Menu
         private readonly InputActionMap m_Menu;
         private IMenuActions m_MenuActionsCallbackInterface;
-        private readonly InputAction m_Menu_Newaction;
         public struct MenuActions
         {
             private @GameInput m_Wrapper;
             public MenuActions(@GameInput wrapper) { m_Wrapper = wrapper; }
-            public InputAction @Newaction => m_Wrapper.m_Menu_Newaction;
             public InputActionMap Get() { return m_Wrapper.m_Menu; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -258,16 +273,10 @@ namespace BirchSalmon
             {
                 if (m_Wrapper.m_MenuActionsCallbackInterface != null)
                 {
-                    @Newaction.started -= m_Wrapper.m_MenuActionsCallbackInterface.OnNewaction;
-                    @Newaction.performed -= m_Wrapper.m_MenuActionsCallbackInterface.OnNewaction;
-                    @Newaction.canceled -= m_Wrapper.m_MenuActionsCallbackInterface.OnNewaction;
                 }
                 m_Wrapper.m_MenuActionsCallbackInterface = instance;
                 if (instance != null)
                 {
-                    @Newaction.started += instance.OnNewaction;
-                    @Newaction.performed += instance.OnNewaction;
-                    @Newaction.canceled += instance.OnNewaction;
                 }
             }
         }
@@ -284,10 +293,10 @@ namespace BirchSalmon
         public interface IGameplayActions
         {
             void OnMove(InputAction.CallbackContext context);
+            void OnJump(InputAction.CallbackContext context);
         }
         public interface IMenuActions
         {
-            void OnNewaction(InputAction.CallbackContext context);
         }
     }
 }
