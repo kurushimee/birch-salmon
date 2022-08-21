@@ -31,22 +31,6 @@ namespace BirchSalmon
             var movement = new Vector3(_movement.x, 0f, _movement.y);
             var finalSpeed = _moveSpeed;
 
-            var hit = new RaycastHit();
-            if (Physics.Raycast(transform.position, -Vector3.up, out hit))
-            {
-                var distanceToGround = hit.distance;
-                if ((distanceToGround > 1.25 || distanceToGround < 0.75) && finalSpeed == _moveSpeed)
-                {
-                    finalSpeed = _moveSpeed / 5;
-                    Debug.Log($"Not touching ground, slowing down.\ndistanceToGround: {distanceToGround}");
-                }
-                else if (finalSpeed != _moveSpeed)
-                {
-                    finalSpeed = _moveSpeed;
-                    Debug.Log("Touching ground, reverting speed");
-                }
-            }
-
             _rb.MovePosition(_rb.position + movement * finalSpeed * Time.fixedDeltaTime);
         }
 
