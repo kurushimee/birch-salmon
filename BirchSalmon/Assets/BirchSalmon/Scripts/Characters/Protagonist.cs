@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace BirchSalmon
 {
-    public class Antagonist : MonoBehaviour
+    public class Protagonist : MonoBehaviour
     {
         [SerializeField] private InputReader _inputReader = default;
         [SerializeField] private LayerMask _groundLayerMask;
@@ -11,7 +11,8 @@ namespace BirchSalmon
         private Rigidbody _rb;
         private Vector2 _movement;
         private float _moveSpeed = 5f;
-        private float _jumpForce = 20f;
+        private float _rotationSpeed = 360f;
+        private float _jumpForce = 50f;
         private float _groundCheckDistance;
 
         private void OnEnable()
@@ -38,6 +39,11 @@ namespace BirchSalmon
             var finalSpeed = _moveSpeed;
 
             _rb.MovePosition(_rb.position + movement * finalSpeed * Time.fixedDeltaTime);
+            if (movement != Vector3.zero)
+            {
+                Quaternion toRotation = Quaternion.LookRotation(movement, Vector3.up);
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, _rotationSpeed * Time.deltaTime);
+            }
         }
 
         private bool IsGrounded()

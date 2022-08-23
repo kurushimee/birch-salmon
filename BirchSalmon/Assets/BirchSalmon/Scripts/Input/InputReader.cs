@@ -9,6 +9,7 @@ namespace BirchSalmon
     {
         public event UnityAction<Vector2> MoveEvent = delegate { };
         public event UnityAction JumpEvent = delegate { };
+        public event UnityAction InteractEvent = delegate { };
 
         private GameInput _gameInput;
 
@@ -39,6 +40,11 @@ namespace BirchSalmon
         {
             if (context.performed)
                 JumpEvent.Invoke();
+        }
+
+        public void OnInteract(InputAction.CallbackContext context)
+        {
+
         }
 
         public void EnableGameplayInput()
